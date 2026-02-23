@@ -29,8 +29,3 @@ Saat ini, fungsi inti aplikasi telah berjalan dengan baik (**Core Functions are 
 * **Deployment:** Support via AAPanel / Docker / VPS
 
 ---
-
-## 💻 Cara Menjalankan (Development)
-1. **Clone repositori ini:**
-   ```bash
-   git clone [https://github.com/username/olt-secure-exporter.git](https://github.com/username/olt-secure-exporter.git)
