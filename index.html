@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tools NOC - OLT Secure Exporter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  <div id="toast-container" class="toast-container"></div>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+        </div>
+        <div class="brand-text">
+            <h2>Tools NOC</h2>
+            <p>Network Operation Center Utility</p>
+        </div>
+      </div>
+      <div class="nav-menu">
+        <button class="nav-link active" onclick="switchPage('noc')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Staff NOC
+        </button>
+        <button class="nav-link" onclick="switchPage('supervisor')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Supervisor
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-container">
+    
+    <div id="page-noc" class="page-section active">
+        
+        <div class="grid-2-col">
+            <div class="card intro-card">
+                <div class="card-header">
+                    <h3>1. Identitas Operator</h3>
+                </div>
+                <div class="card-body">
+                    <label class="form-label">Nama Petugas NOC</label>
+                    <div class="input-icon-wrapper">
+                        <input type="text" id="operatorName" class="form-input" placeholder="Masukkan nama Anda...">
+                    </div>
+                    <p class="hint">Nama akan tercatat dalam log aktivitas sistem.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>2. Input Data OLT</h3>
+                </div>
+                <div class="card-body">
+                    <div class="drop-area" id="dropArea">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="upload-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <h4>Pilih File Konfigurasi</h4>
+                        <p>Format <code>.txt</code> atau <code>.cfg</code></p>
+                        <input type="file" id="fileInput" accept=".txt,.cfg" hidden>
+                    </div>
+                    <textarea id="dataInput" class="hidden-textarea"></textarea>
+                    
+                    <div class="flex-end mt-3">
+                        <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                        <button class="btn btn-primary" onclick="prosesData()">
+                            Analisis Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card result-card" id="previewSection" style="display:none;">
+            <div class="card-header flex-between">
+                <h3>3. Preview & Filter Data</h3>
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="gantiTab('semua', event)">Semua Data <span id="countSemua" class="badge">0</span></button>
+                    <button class="tab-btn" onclick="gantiTab('aktif', event)">Status Aktif <span id="countAktif" class="badge bg-green">0</span></button>
+                    <button class="tab-btn" onclick="gantiTab('nonaktif', event)">Status Nonaktif <span id="countNonaktif" class="badge bg-red">0</span></button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID Interface</th>
+                            <th>Nama Perangkat</th>
+                            <th>User PPPoE</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyPreview"></tbody>
+                </table>
+            </div>
+
+            <div class="export-footer">
+                <div class="info-side">
+                    <h4>Ekspor Laporan PDF</h4>
+                    <p id="statusDownloadLabel">Siap untuk mengenkripsi dan mengunduh data terpilih.</p>
+                </div>
+                <div class="action-side">
+                    <input type="text" id="pdfPassword" class="form-input pass-input" placeholder="Set Password Dokumen..." autocomplete="off">
+                    <button class="btn btn-accent" onclick="kirimKeBackend()">
+                        Enkripsi & Unduh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-supervisor" class="page-section" style="display:none;">
+        <div class="card">
+            <div class="card-header flex-between">
+                <h3>Riwayat Aktivitas Sistem</h3>
+                <button class="btn btn-secondary btn-sm" onclick="loadRiwayat()">
+                    Muat Ulang
+                </button>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Tanggal & Waktu</th>
+                            <th>Petugas (Operator)</th>
+                            <th>File Diproses</th>
+                            <th>Jml Data</th>
+                            <th>Status Output</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyHistory">
+                        <tr><td colspan="5" class="text-center">Memuat data riwayat...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+  </div>
+
+  <script>
+    // --- SISTEM NOTIFIKASI BARU (TOAST) ---
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        
+        // Ikon berdasarkan tipe notifikasi
+        let icon = '';
+        if (type === 'success') icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+        else if (type === 'error') icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+        else icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+
+        toast.innerHTML = `
+            <div class="toast-icon">${icon}</div>
+            <div class="toast-message">${message}</div>
+        `;
+
+        container.appendChild(toast);
+
+        // Hapus otomatis setelah 4 detik
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s forwards';
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
+    // --------------------------------------
+
+    let semuaData = [];
+    let tabSaatIni = 'semua';
+    let currentFilename = "Manual Input";
+
+    const dropArea = document.getElementById('dropArea');
+    const fileInput = document.getElementById('fileInput');
+    const textArea = document.getElementById('dataInput');
+
+    dropArea.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', e => readFile(e.target.files[0]));
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+      dropArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); });
+    });
+    dropArea.addEventListener('drop', e => {
+        dropArea.classList.remove('active');
+        readFile(e.dataTransfer.files[0]);
+    });
+    dropArea.addEventListener('dragenter', () => dropArea.classList.add('active'));
+    dropArea.addEventListener('dragleave', () => dropArea.classList.remove('active'));
+
+    function readFile(file) {
+      if (!file) return;
+      currentFilename = file.name;
+      dropArea.querySelector('h4').innerText = `File Terpilih: ${file.name}`;
+      const reader = new FileReader();
+      reader.onload = ev => {
+          textArea.value = ev.target.result;
+          showToast("File berhasil dimuat. Silakan klik Analisis Data.", "info");
+      };
+      reader.readAsText(file);
+    }
+
+    function switchPage(page) {
+        document.querySelectorAll('.page-section').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+        document.getElementById(`page-${page}`).style.display = 'block';
+        event.currentTarget.classList.add('active');
+        if(page === 'supervisor') loadRiwayat();
+    }
+
+    function prosesData() {
+        const operator = document.getElementById('operatorName').value.trim();
+        // Ganti Alert -> Toast Error
+        if(!operator) return showToast("Harap mengisi Nama Operator terlebih dahulu.", "error");
+
+        const input = textArea.value.trim();
+        // Ganti Alert -> Toast Error
+        if (!input) return showToast("Data konfigurasi OLT belum dimasukkan!", "error");
+
+        const blocks = input.split(/(?=interface gpon-onu_)/g).filter(b => b.includes("interface gpon-onu_"));
+        semuaData = [];
+
+        blocks.forEach(block => {
+            const idMatch = block.match(/interface gpon-onu_(\d+\/\d+\/\d+:\d+)/i);
+            if (!idMatch) return;
+            const name = block.match(/name\s+(ONU[-_\w]+)/i)?.[1] || "Unknown";
+            const isActive = !/^\s*shutdown\s*$/m.test(block);
+            semuaData.push({ id: idMatch[1], name, status: isActive ? "AKTIF" : "NONAKTIF", username: "-" });
+        });
+
+        const pppoeBlocks = input.split(/(?=pon-onu-mng gpon-onu_)/g);
+        pppoeBlocks.forEach(block => {
+            const idMatch = block.match(/pon-onu-mng gpon-onu_(\d+\/\d+\/\d+:\d+)/i);
+            if (idMatch) {
+                const user = block.match(/mode\s+pppoe\s+username\s+(\S+)/i)?.[1];
+                if (user) {
+                    const item = semuaData.find(d => d.id === idMatch[1]);
+                    if (item) item.username = user;
+                }
+            }
+        });
+
+        if (semuaData.length === 0) {
+            return showToast("Tidak ditemukan data GPON valid dalam file.", "error");
+        }
+
+        updateUI();
+        document.getElementById("previewSection").style.display = "block";
+        setTimeout(() => document.getElementById("previewSection").scrollIntoView({behavior:'smooth'}), 100);
+        showToast(`Berhasil menganalisis ${semuaData.length} data pelanggan.`, "success");
+    }
+
+    function updateUI() {
+      document.getElementById('countSemua').innerText = semuaData.length;
+      document.getElementById('countAktif').innerText = semuaData.filter(d => d.status === "AKTIF").length;
+      document.getElementById('countNonaktif').innerText = semuaData.filter(d => d.status === "NONAKTIF").length;
+      renderTabel(tabSaatIni);
+    }
+
+    function renderTabel(filter) {
+      const tbody = document.getElementById("tbodyPreview");
+      tbody.innerHTML = "";
+      let dataView = semuaData;
+      if (filter === 'aktif') dataView = semuaData.filter(d => d.status === "AKTIF");
+      if (filter === 'nonaktif') dataView = semuaData.filter(d => d.status === "NONAKTIF");
+
+      if (dataView.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center">Tidak ada data yang sesuai filter.</td></tr>`;
+        return;
+      }
+
+      dataView.forEach(item => {
+        const tr = document.createElement("tr");
+        const statusBadge = item.status === 'AKTIF' 
+            ? `<span class="status-dot green"></span> Aktif` 
+            : `<span class="status-dot red"></span> Nonaktif`;
+            
+        tr.innerHTML = `
+          <td class="font-mono">${item.id}</td>
+          <td>${item.name}</td>
+          <td class="text-highlight">${item.username}</td>
+          <td>${statusBadge}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function gantiTab(tabName, event) {
+      tabSaatIni = tabName;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      renderTabel(tabName);
+      const mapLabel = {'nonaktif': 'Pelanggan Nonaktif', 'aktif': 'Pelanggan Aktif', 'semua': 'Seluruh Data'};
+      document.getElementById('statusDownloadLabel').innerHTML = `Kategori terpilih: <b>${mapLabel[tabName]}</b>`;
+    }
+
+    async function kirimKeBackend() {
+      const password = document.getElementById('pdfPassword').value;
+      const operator = document.getElementById('operatorName').value.trim();
+      let dataExport = semuaData;
+      let judulOtomatis = "Rekapitulasi Seluruh Data";
+
+      if (tabSaatIni === 'nonaktif') {
+          dataExport = semuaData.filter(d => d.status === "NONAKTIF");
+          judulOtomatis = "Laporan Pelanggan Nonaktif";
+      } else if (tabSaatIni === 'aktif') {
+          dataExport = semuaData.filter(d => d.status === "AKTIF");
+          judulOtomatis = "Laporan Pelanggan Aktif";
+      }
+
+      if (dataExport.length === 0) return showToast("Tidak ada data untuk kategori ini.", "error");
+      if (!password || password.length < 3) return showToast("Password PDF minimal 3 karakter.", "error");
+
+      const btn = document.querySelector('.btn-accent');
+      const oldText = btn.innerHTML;
+      btn.innerHTML = "Memproses...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/generate-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+              dataSet: dataExport, 
+              password: password, 
+              judul: judulOtomatis,
+              operator: operator,
+              filename: currentFilename
+          })
+        });
+
+        if (res.ok) {
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${judulOtomatis.replace(/\s+/g,'_')}_SECURE.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          // Ganti Alert -> Toast Sukses
+          showToast("Berhasil! Dokumen PDF telah dienkripsi dan diunduh.", "success");
+        } else {
+            const err = await res.json();
+            showToast("Error Server: " + err.error, "error");
+        }
+      } catch (e) {
+        showToast("Gagal koneksi ke server Backend.", "error");
+      } finally {
+        btn.innerHTML = oldText;
+        btn.disabled = false;
+      }
+    }
+
+    async function loadRiwayat() {
+        const tbody = document.getElementById('tbodyHistory');
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center">Memuat...</td></tr>`;
+        try {
+            const res = await fetch('/api/history');
+            const data = await res.json();
+            
+            if(data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center">Belum ada riwayat aktivitas.</td></tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = "";
+            data.slice().reverse().forEach(log => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td class="font-mono">${log.tanggal}</td>
+                    <td><b>${log.operator}</b></td>
+                    <td>${log.namaFileAsli}</td>
+                    <td><span class="badge">${log.jumlahData} Baris</span></td>
+                    <td><span class="status-dot green"></span> ${log.status}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            showToast("Data riwayat berhasil diperbarui.", "info");
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-red">Gagal memuat data.</td></tr>`;
+            showToast("Gagal memuat data riwayat.", "error");
+        }
+    }
+
+    function resetForm() {
+        textArea.value = "";
+        semuaData = [];
+        currentFilename = "Manual Input";
+        dropArea.querySelector('h4').innerText = "Pilih File Konfigurasi";
+        document.getElementById("previewSection").style.display = "none";
+        document.getElementById("fileInput").value = "";
+        showToast("Formulir telah direset.", "info");
+    }
+  </script>
+</body>
+</html>
