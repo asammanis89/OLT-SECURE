@@ -1,8 +1,16 @@
+![banner](docs/banner.png)
+
 # OLT Secure Exporter
 
 Aplikasi web berbasis **Node.js** untuk mengolah data konfigurasi OLT (Optical Line Terminal) mentah menjadi **laporan PDF yang dikunci dengan password (enkripsi AES-256)**, sehingga data jaringan yang sensitif tidak beredar dalam bentuk teks biasa.
 
-> 📷 Screenshot: tambahkan `docs/upload.png` (halaman unggah) dan `docs/hasil.png` (PDF terkunci) lalu tampilkan di sini.
+![Hasil parsing: data ONU per status, siap diekspor ke PDF terenkripsi](docs/olt_2_hasil.png)
+*Hasil parsing: data ONU per status, siap diekspor ke PDF terenkripsi*
+
+![Halaman unggah file konfigurasi](docs/olt_1_upload.png)
+*Halaman unggah file konfigurasi*
+
+<sub>Screenshot memakai data contoh fiktif.</sub>
 
 ## Masalah yang dipecahkan
 
