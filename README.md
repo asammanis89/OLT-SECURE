@@ -1,31 +1,50 @@
 # OLT Secure Exporter
 
-**OLT Secure Exporter** adalah aplikasi berbasis Node.js yang dirancang khusus untuk mengolah, mengonversi, dan mengamankan data konfigurasi OLT (Optical Line Terminal). Proyek ini dikembangkan sebagai bagian dari Tugas Akhir/Skripsi sekaligus solusi digital untuk tim **NOC (Network Operations Center) PT. Sarana Media Cemerlang**.
+Aplikasi web berbasis **Node.js** untuk mengolah data konfigurasi OLT (Optical Line Terminal) mentah menjadi **laporan PDF yang dikunci dengan password (enkripsi AES-256)**, sehingga data jaringan yang sensitif tidak beredar dalam bentuk teks biasa.
 
----
+> 📷 Screenshot: tambahkan `docs/upload.png` (halaman unggah) dan `docs/hasil.png` (PDF terkunci) lalu tampilkan di sini.
 
-## 🚀 Status Proyek: Functional & Ready
-Saat ini, fungsi inti aplikasi telah berjalan dengan baik (**Core Functions are Operational**), meliputi:
-* **Parsing Data:** Ekstraksi data konfigurasi OLT secara akurat.
-* **Security Layer:** Implementasi algoritma **AES-256** untuk enkripsi data.
-* **Randomness:** Penggunaan algoritma **Blum Blum Shub (BBS)** untuk keamanan tambahan.
-* **PDF Processing:** Integrasi **QPDF** untuk penanganan dokumen output.
-* **Deployment Ready:** Aplikasi siap di-hosting (bukan hanya localhost).
+## Masalah yang dipecahkan
 
----
+Data konfigurasi/pelanggan OLT biasanya dibagikan sebagai file teks mentah, sulit dibaca dan mudah bocor. Aplikasi ini mengubahnya menjadi laporan rapi dan langsung mengamankannya.
 
-## ✨ Fitur Utama
-* **Automated Parsing:** Mengubah file konfigurasi mentah menjadi format yang mudah dibaca.
-* **High-Level Security:** Mengamankan data sensitif jaringan menggunakan standar enkripsi industri.
-* **NOC Tools:** Dirancang spesifik untuk kebutuhan efisiensi kerja tim NOC Jagonet.
-* **Web-Based Interface:** Antarmuka yang responsif dan mudah digunakan.
+## Fitur
 
----
+- **Parsing otomatis** file teks konfigurasi OLT memakai regex menjadi data terstruktur.
+- **Generasi laporan PDF** (PDFKit) dengan judul dan nama operator.
+- **Enkripsi PDF AES-256** dengan password dari pengguna (memakai `qpdf`).
+- **Riwayat proses**: mencatat waktu, operator, nama file, jumlah data, dan status.
+- Antarmuka web sederhana, bisa dijalankan di server sendiri.
 
-## 🛠️ Tech Stack
-* **Backend:** Node.js
-* **Encryption:** AES-256 & Blum Blum Shub (BBS)
-* **PDF Tools:** QPDF
-* **Deployment:** Support via AAPanel / Docker / VPS
+## Alur kerja
 
----
+```
+Unggah file .txt → Parsing regex → Susun laporan PDF → Enkripsi AES-256 (qpdf) → Unduh PDF berpassword
+```
+
+## Tech stack
+
+Node.js · Express · PDFKit · qpdf · HTML/CSS/JavaScript
+
+## Cara menjalankan
+
+Prasyarat: Node.js 18+ dan [qpdf](https://github.com/qpdf/qpdf) terpasang di sistem (`sudo apt install qpdf`).
+
+```bash
+git clone https://github.com/asammanis89/OLT-SECURE.git
+cd OLT-SECURE
+npm install
+node server.js
+```
+
+Buka `http://localhost:3000`.
+
+## Catatan keamanan
+
+- Gunakan password PDF yang panjang; aplikasi hanya mewajibkan minimal 3 karakter sebagai batas teknis.
+- File `riwayat.json` hanya menyimpan metadata proses, tanpa isi data dan tanpa password. Jangan di-commit jika berisi nama file internal.
+- Untuk produksi, jalankan di belakang HTTPS (Nginx + SSL).
+
+## Pengembang
+
+**Ardha Febrian Muqorrobin** – WhatsApp 081217529861 · [LinkedIn](https://www.linkedin.com/in/ardha-febrian-342317289/)
