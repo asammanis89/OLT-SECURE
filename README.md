@@ -32,7 +32,7 @@ Unggah file .txt → Parsing regex → Susun laporan PDF → Enkripsi AES-256 (q
 
 ## Tech stack
 
-Node.js · Express · PDFKit · qpdf · HTML/CSS/JavaScript
+Node.js, Express, PDFKit, qpdf, HTML/CSS/JavaScript
 
 ## Cara menjalankan
 
@@ -53,6 +53,6 @@ Buka `http://localhost:3000`.
 - File `riwayat.json` hanya menyimpan metadata proses, tanpa isi data dan tanpa password. Jangan di-commit jika berisi nama file internal.
 - Untuk produksi, jalankan di belakang HTTPS (Nginx + SSL).
 
-## Pengembang
+---
 
-**Ardha Febrian Muqorrobin** – WhatsApp 081217529861 · [LinkedIn](https://www.linkedin.com/in/ardha-febrian-342317289/)
+Dibuat oleh Ardha Febrian. Portofolio dan kontak: [asammanis89.github.io](https://asammanis89.github.io), WhatsApp [0857-5517-1491](https://wa.me/6285755171491).
