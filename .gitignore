@@ -1,0 +1,4 @@
+node_modules/
+riwayat.json
+*.log
+.env
